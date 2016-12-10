@@ -13,7 +13,7 @@
 
 //#define int LENGTH 100     // length of data set - okay this doesnt work aparently
 
-int LENGTH = 10000;
+int LENGTH = 1000;
 
 
 //this is possible error, not save mem correctly
@@ -47,13 +47,13 @@ __global__ void findLeast(const double *array, double *m, const int size){
   // reduce spread out shared memory in block into one location: shared[0]
   for(int i = blockDim.x / 2; i > 0; i/=2){   // note blockDim.x is number of threads in a block, always even
     if(tid < i and gid < size)
-      share[tid] = max(share[tid], share[tid + i]);
+      share[tid] = min(share[tid], share[tid + i]);
     __syncthreads();
   }
 
   // compare across blocks to find true min
   if(tid == 0)
-    atomicMinf(m, share[0]);    // or is the error here, no clue
+    *m = atomicMinf(m, share[0]);    // or is the error here, no clue
 }
 
 ///////////////////////////////////////////////////////////////////////////////
